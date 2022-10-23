@@ -1,0 +1,36 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: nis
+  namespace: {{ default "nis" .Release.Namespace }}
+  labels:
+    app: nis
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - nis/nis-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: nis.nis.svc.cluster.local
+        port:
+          number: 8201
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: nis-gateway
+spec:
+  selector:
+          istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 8201
+      name: "8201"
+      protocol: HTTP
+    hosts:
+    - "*"

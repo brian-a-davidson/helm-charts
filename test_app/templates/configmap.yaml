@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-app-config
+  namespace: {{ default "test-app" .Release.Namespace }}
+data:
+  {{- range $key, $val := .Values.env.configmap }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end}}

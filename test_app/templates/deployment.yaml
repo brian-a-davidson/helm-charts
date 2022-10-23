@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app
+  namespace: {{ default "test-app" .Release.Namespace }}
+  labels:
+    app: test-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-app
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: test-app
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
+    spec:
+      containers:
+      - name: test-app
+        image: {{ .Values.image }}
+        imagePullPolicy: Always
+        readinessProbe:
+          httpGet:
+            path: /test-app/status
+            port: 8201
+            scheme: HTTP
+          initialDelaySeconds: 60
+        livenessProbe:
+          httpGet:
+            path: /test-app/status
+            port: 8201
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        resources:
+          limits:
+            cpu: "2"
+            memory: 1000Mi
+          requests:
+            cpu: "1"
+        ports:
+        - containerPort: 8201
+        args: {{ .Values.args }}
+        resources:
+          limits:
+            memory: "1073741824"
+        envFrom:
+        - configMapRef:
+            name: test-app-config
+        - secretRef:
+            name: test-app-secrets
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: regcred
