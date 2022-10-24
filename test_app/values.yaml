@@ -1,5 +1,5 @@
 # This is the image used to start each pod.
-image: cubicnextcloudregistry.azurecr.io/cts/ccbo/test_app:latest
+image: test-registry.azurecr.io/cts/ccbo/test_app:latest
 
 # These are the args used when starting the container in each pod.
 #args: ["testing"]
